@@ -24,6 +24,7 @@ func main() {
 	appRouter.Use(corsMiddleware)
 
 	v1Router := chi.NewRouter()
+	v1Router.Get("/readiness", readinessHandler)
 
 	appRouter.Mount("/v1", v1Router)
 
@@ -32,4 +33,12 @@ func main() {
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
+}
+
+func readinessHandler(w http.ResponseWriter, r *http.Request) {
+	type ReadinessResponse struct {
+		Status string `json:"status"`
+	}
+
+	respondWithJSON(w, http.StatusOK, ReadinessResponse{Status: "ok"})
 }
