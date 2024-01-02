@@ -25,6 +25,7 @@ func main() {
 
 	v1Router := chi.NewRouter()
 	v1Router.Get("/readiness", readinessHandler)
+	v1Router.Get("/err", errHandler)
 
 	appRouter.Mount("/v1", v1Router)
 
@@ -41,4 +42,12 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusOK, ReadinessResponse{Status: "ok"})
+}
+
+func errHandler(w http.ResponseWriter, r *http.Request) {
+	type ErrResponse struct {
+		Error string `json:"error"`
+	}
+
+	respondWithJSON(w, http.StatusInternalServerError, ErrResponse{Error: "Internal Server Error"})
 }
