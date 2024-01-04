@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
@@ -9,11 +10,20 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/m-rstewart/go-rss/internal/database"
 )
+
+type apiConfig struct {
+	DB *database.Queries
+}
 
 func main() {
 	godotenv.Load()
 	port := os.Getenv("PORT")
+	dbURL := os.Getenv("DB_CONN")
+
+	db, err := sql.Open("postgres", dbURL)
+	dbQueries := database.New(db)
 
 	appRouter := chi.NewRouter()
 	server := &http.Server{
