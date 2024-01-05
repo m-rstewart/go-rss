@@ -59,7 +59,7 @@ func main() {
 
 func (cfg *apiConfig) createUserHandler(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Name string `json:"user"`
+		Name string `json:"name"`
 	}
 
 	type UserResponse struct {
