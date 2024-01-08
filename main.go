@@ -2,15 +2,12 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/m-rstewart/go-rss/internal/database"
@@ -47,6 +44,7 @@ func main() {
 	v1Router.Get("/readiness", readinessHandler)
 	v1Router.Get("/err", errHandler)
 	v1Router.Post("/users", apiConfig.createUserHandler)
+	v1Router.Get("/users", apiConfig.getCurrentUser)
 
 	appRouter.Mount("/v1", v1Router)
 
@@ -55,50 +53,6 @@ func main() {
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
-}
-
-func (cfg *apiConfig) createUserHandler(w http.ResponseWriter, r *http.Request) {
-	type parameters struct {
-		Name string `json:"name"`
-	}
-
-	type UserResponse struct {
-		ID        uuid.UUID `json:"id"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
-		Name      string    `json:"name"`
-		APIKey    string    `json:"api_key"`
-	}
-
-	decoder := json.NewDecoder(r.Body)
-	params := parameters{}
-	err := decoder.Decode(&params)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters")
-		return
-	}
-	defer r.Body.Close()
-
-	userParams := database.CreateUserParams{
-		ID:        uuid.New(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		Name:      params.Name,
-	}
-	user, err := cfg.DB.CreateUser(r.Context(), userParams)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	res := UserResponse{
-		ID:        user.ID,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		Name:      user.Name,
-	}
-
-	respondWithJSON(w, http.StatusCreated, res)
 }
 
 func readinessHandler(w http.ResponseWriter, r *http.Request) {
