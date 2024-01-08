@@ -67,6 +67,7 @@ func (cfg *apiConfig) createUserHandler(w http.ResponseWriter, r *http.Request) 
 		CreatedAt time.Time `json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`
 		Name      string    `json:"name"`
+		APIKey    string    `json:"api_key"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
