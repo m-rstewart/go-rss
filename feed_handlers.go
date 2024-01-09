@@ -59,3 +59,21 @@ func (cfg *apiConfig) createFeedHandler(w http.ResponseWriter, r *http.Request, 
 
 	respondWithJSON(w, http.StatusCreated, res)
 }
+
+func (cfg *apiConfig) getAllFeeds(w http.ResponseWriter, r *http.Request) {
+	type FeedsResponse struct {
+		Feeds []database.Feed `json:"feeds"`
+	}
+
+	feeds, err := cfg.DB.GetFeeds(r.Context())
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	res := FeedsResponse{
+		Feeds: feeds,
+	}
+
+	respondWithJSON(w, http.StatusOK, res)
+}
