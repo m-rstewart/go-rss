@@ -117,7 +117,7 @@ func (cfg *apiConfig) createFeedFollowHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	res := FeedFollowResponse{
-		ID:        feedFollow.FeedID,
+		ID:        feedFollow.ID,
 		CreatedAt: feedFollow.CreatedAt,
 		UpdatedAt: feedFollow.UpdatedAt,
 		UserID:    feedFollow.UserID,
