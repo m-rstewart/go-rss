@@ -10,17 +10,17 @@ import (
 	"github.com/m-rstewart/go-rss/internal/database"
 )
 
+type FeedFollowResponse struct {
+	ID        uuid.UUID `json:"id"`
+	FeedID    uuid.UUID `json:"feed_id"`
+	UserID    uuid.UUID `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 func (cfg *apiConfig) createFeedFollowHandler(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		FeedID uuid.UUID `json:"feed_id"`
-	}
-
-	type FeedFollowResponse struct {
-		ID        uuid.UUID `json:"id"`
-		FeedID    uuid.UUID `json:"feed_id"`
-		UserID    uuid.UUID `json:"user_id"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
 	}
 
 	decoder := json.NewDecoder(r.Body)

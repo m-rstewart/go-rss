@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -10,6 +11,11 @@ import (
 )
 
 type FeedResponse struct {
+	Feed       Feed               `json:"feed"`
+	FeedFollow FeedFollowResponse `json:"feed_follow"`
+}
+
+type Feed struct {
 	ID        uuid.UUID `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -48,13 +54,38 @@ func (cfg *apiConfig) createFeedHandler(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	res := FeedResponse{
+	feedFollowParams := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	}
+
+	feedFollow, err := cfg.DB.CreateFeedFollow(r.Context(), feedFollowParams)
+	if err != nil {
+		fmt.Errorf("Error creating feed follow")
+	}
+
+	createdFeed := Feed{
 		ID:        feed.ID,
 		CreatedAt: feed.CreatedAt,
 		UpdatedAt: feed.UpdatedAt,
 		Name:      feed.Name,
 		Url:       feed.Url,
 		UserID:    feed.UserID,
+	}
+	createdFeedFollow := FeedFollowResponse{
+		ID:        feed.ID,
+		FeedID:    feedFollow.FeedID,
+		UserID:    feedFollow.UserID,
+		CreatedAt: feedFollow.CreatedAt,
+		UpdatedAt: feed.UpdatedAt,
+	}
+
+	res := FeedResponse{
+		Feed:       createdFeed,
+		FeedFollow: createdFeedFollow,
 	}
 
 	respondWithJSON(w, http.StatusCreated, res)
