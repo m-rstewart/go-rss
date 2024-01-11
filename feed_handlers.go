@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/m-rstewart/go-rss/internal/database"
 )
@@ -124,4 +125,26 @@ func (cfg *apiConfig) createFeedFollowHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	respondWithJSON(w, http.StatusCreated, res)
+}
+
+func (cfg *apiConfig) deleteFeedFollowHandler(w http.ResponseWriter, r *http.Request, user database.User) {
+	feedFollowIDString := chi.URLParam(r, "feedFollowID")
+	feedFollowID, err := uuid.Parse(feedFollowIDString)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid feed follow ID")
+		return
+	}
+
+	deleteParams := database.DeleteFeedFollowParams{
+		UserID: user.ID,
+		ID:     feedFollowID,
+	}
+
+	err = cfg.DB.DeleteFeedFollow(r.Context(), deleteParams)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Feed follow could not be deleted")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, struct{}{})
 }
