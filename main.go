@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -24,7 +25,7 @@ func main() {
 
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
-		fmt.Println("Error:", err)
+		log.Fatal(err)
 	}
 	dbQueries := database.New(db)
 	apiConfig := &apiConfig{
@@ -37,7 +38,14 @@ func main() {
 		Handler: appRouter,
 	}
 
-	corsMiddleware := cors.Handler(cors.Options{})
+	corsMiddleware := cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	})
 	appRouter.Use(corsMiddleware)
 
 	v1Router := chi.NewRouter()
