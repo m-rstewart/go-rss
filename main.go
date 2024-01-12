@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -64,11 +65,12 @@ func main() {
 
 	appRouter.Mount("/v1", v1Router)
 
+	const scraperConcurrency = 10
+	const scraperInterval = time.Minute
+	go startScraping(dbQueries, scraperConcurrency, scraperInterval)
+
 	fmt.Printf("Starting server on http://localhost%s...\n", server.Addr)
-	err = server.ListenAndServe()
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
+	log.Fatal(server.ListenAndServe())
 }
 
 func readinessHandler(w http.ResponseWriter, r *http.Request) {
